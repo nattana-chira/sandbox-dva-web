@@ -1,3 +1,4 @@
+import RegisterForm from "@/components/register/RegisterForm";
 import Link from "next/link"
 
 export default function Register() {
@@ -14,9 +15,10 @@ export default function Register() {
   }
 
   return (
-    <div>
+    <div className="text-center">
       <h1>Register Page</h1>
-      <p>This is the about page using the App Router.</p>
+      <RegisterForm />
+
       <Link href="/register">register</Link> | 
       <Link href="/login">login</Link> | 
       <Link href="/">home</Link>
