@@ -31,17 +31,16 @@ body {
 }
 
 .bell-icon {
-  transform: scale(0.35);
+  transform: scale(1) !important;
 }
 
 .add-friend-icon {
-  transform: scale(1.0);
+  transform: scale(1) !important;
 }
 
 .log-out-icon {
-  transform: scale(0.9);
-  margin-bottom: 1px;
+  transform: scale(1) !important;
 }
 
-/* clear cache 121134 */
+/* clear cache 1234 */
 

@@ -1,4 +1,4 @@
-import { User } from "@/libs/types/user";
+import { User } from "@/libs/api/auth";
 import React from "react";
 
 interface Props {

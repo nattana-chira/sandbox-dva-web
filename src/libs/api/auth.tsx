@@ -1,5 +1,13 @@
-import axios from "axios";
 import { API_URL } from "../constants";
+import API from "../utils/api";
+
+export type User = {
+  id: string
+  email: string
+  firstName: string
+  lastName: string
+  profileImage?: string
+}
 
 type RegisterUserParams = {
   firstName: string
@@ -7,6 +15,17 @@ type RegisterUserParams = {
   email: string
   password: string
   profilePic: File | null
+};
+
+type LoginParams = {
+  email: string
+  password: string
+};
+
+type LoginResponse = {
+  data: {
+    token: string
+  }
 };
 
 export async function registerUser({ firstName, lastName, email, password, profilePic }: RegisterUserParams) {
@@ -17,9 +36,13 @@ export async function registerUser({ firstName, lastName, email, password, profi
   formData.append("password", password)
 
   if (profilePic) 
-    formData.append("file", profilePic);
+    formData.append("file", profilePic)
 
-  return await axios.post(API_URL + "/api/auth/register", formData, {
+  return await API.post(API_URL + "/api/auth/register", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   })
+}
+
+export async function loginUser({ email, password }: LoginParams): Promise<LoginResponse> {
+  return await API.post(API_URL + "/api/auth/login", { email, password })
 }

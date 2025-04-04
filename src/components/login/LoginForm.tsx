@@ -3,40 +3,41 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import * as yup from 'yup';
 import Input from "../form/Input";
 import Label from "../form/Label";
 import Link from "next/link";
-
-interface FormData {
-  email: string
-  password: string
-}
-
-const schema = yup.object({
-  email: yup
-    .string()
-    .email('Invalid email format')
-    .required('Email is required'),
-  password: yup
-    .string()
-    .min(6, 'Password must be at least 6 characters')
-    .required('Password is required')
-}).required();
+import { schema } from "./loginForm.schemas";
+import { FormData } from "./loginForm.interfaces";
+import { loginUser } from "@/libs/api/auth";
+import { useRouter } from "next/navigation";
+import { handleError } from "@/libs/utils/apiErrorHandler";
 
 export default function LoginForm() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(false)
+    const router = useRouter()
 
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: yupResolver(schema), // Integrating Yup validation
+    resolver: yupResolver(schema) // Integrating Yup validation
   })
 
-  const handleSubmitLogin: SubmitHandler<FormData> = (data) => {
-    console.log("data", data)
+  const handleSubmitLogin: SubmitHandler<FormData> = async (data) => {
+     try {
+      setLoading(true)
+      const response = await loginUser(data)
+      localStorage.setItem("token", response.data.token)
+      alert('Login successfully')
+      router.push('/')
+
+    } catch (e: any) {
+      handleError(e)
+
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit(handleSubmitLogin)} className="max-w-sm mx-auto p-4 border rounded text-left">
+    <form onSubmit={handleSubmit(handleSubmitLogin)} className="max-w-md mx-auto p-4 border border-gray-300 rounded text-left shadow-sm">
       <h2 className="text-2xl font-bold text-center mb-1">Login</h2>
       <div className="text-sm font-semibold text-gray-700 opacity-50 text-center mb-5">Enter your credentials to access your account</div>
 
@@ -70,7 +71,7 @@ export default function LoginForm() {
           className={`w-full bg-black text-sm text-white p-2 rounded-md h-10 ${loading ? 'bg-gray-400' : ''}`}
           disabled={loading}
         >
-          {loading ? 'Login in...' : 'Login'}
+          Login
         </button>
       </div>
 

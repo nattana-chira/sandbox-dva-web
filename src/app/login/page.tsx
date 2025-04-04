@@ -3,13 +3,8 @@ import Link from "next/link"
 
 export default function Login() {
   return (
-    <div className="text-center">
-      <h1>Login Page</h1>
+    <div className="text-center pt-10">
       <LoginForm />
-
-      <Link href="/register">register</Link> | 
-      <Link href="/login">login</Link> | 
-      <Link href="/">home</Link>
     </div>
   );
 }

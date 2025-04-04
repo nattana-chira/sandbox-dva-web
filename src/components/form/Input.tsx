@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface InputProps {
+interface Props {
   type?: string
   id?: string
   placeholder?: string
@@ -9,7 +9,7 @@ interface InputProps {
   className?: string
 }
 
-const Input: React.FC<InputProps> = ({
+const Input: React.FC<Props> = ({
   type,
   id,
   placeholder,

@@ -9,8 +9,8 @@ import Link from "next/link";
 import { registerUser } from "@/libs/api/auth";
 import { handleError } from "@/libs/utils/apiErrorHandler";
 import { useRouter } from "next/navigation";
-import { FormData } from "./registerForm.types";
-import { schema } from "./registerFrom.schemas";
+import { FormData } from "./registerForm.interfaces";
+import { schema } from "./registerForm.schemas";
 
 export default function RegisterForm() {
   const [loading, setLoading] = useState<boolean>(false)
