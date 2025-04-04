@@ -29,3 +29,19 @@ body {
   /* color: red !important */
   font-weight: 600;
 }
+
+.bell-icon {
+  transform: scale(0.35);
+}
+
+.add-friend-icon {
+  transform: scale(1.0);
+}
+
+.log-out-icon {
+  transform: scale(0.9);
+  margin-bottom: 1px;
+}
+
+/* clear cache 121134 */
+
