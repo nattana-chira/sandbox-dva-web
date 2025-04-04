@@ -1,78 +1,100 @@
 "use client"
 
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import * as yup from 'yup';
 import Input from "../form/Input";
 import Label from "../form/Label";
 import Link from "next/link";
-
-interface FormData {
-  firstName: string
-  lastName: string
-  email: string
-  password: string
-  confirmPassword: string
-}
-
-const schema = yup.object({
-  firstName: yup
-    .string()
-    .required('First name is required'),
-  lastName: yup
-    .string()
-    .required('Last name is required'),
-  email: yup
-    .string()
-    .email('Invalid email format')
-    .required('Email is required'),
-  password: yup
-    .string()
-    .min(6, 'Password must be at least 6 characters')
-    .required('Password is required'),
-  confirmPassword: yup
-    .string()
-    .oneOf([yup.ref('password')], 'Passwords must match')
-    .required('Confirm password is required'),
-}).required();
+import { registerUser } from "@/libs/api/auth";
+import { handleError } from "@/libs/utils/apiErrorHandler";
+import { useRouter } from "next/navigation";
+import { FormData } from "./registerForm.types";
+import { schema } from "./registerFrom.schemas";
 
 export default function RegisterForm() {
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false)
+  const [profilePic, setProfilePic] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>('https://fakeimg.pl/125x125/f2eded/969696?text=Add')
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const router = useRouter()
 
+  // Integrating Yup validation
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({
-    resolver: yupResolver(schema), // Integrating Yup validation
+    resolver: yupResolver(schema)
   })
 
-  const handleSubmitRegister: SubmitHandler<FormData> = (data) => {
-    console.log("data", data)
+  const handleOpenInputFile = () => {
+    fileInputRef.current?.click()
+  }
+
+  const handleProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setProfilePic(file);
+      setPreviewUrl(URL.createObjectURL(file))
+    }
+  }
+
+  const handleSubmitRegister: SubmitHandler<FormData> = async (data) => {
+    try {
+      setLoading(true)
+      await registerUser({ ...data, profilePic })
+      alert('Register successfully')
+      router.push('/login')
+
+    } catch (e: any) {
+      handleError(e)
+
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit(handleSubmitRegister)} className="max-w-sm mx-auto p-4 border rounded text-left">
+    <form onSubmit={handleSubmit(handleSubmitRegister)} className="max-w-md mx-auto p-4 border border-gray-300 rounded text-left shadow-sm">
       <h2 className="text-2xl font-bold text-center mb-1">Register</h2>
       <div className="text-sm font-semibold text-gray-700 opacity-50 text-center mb-5">Create a new account to get started</div>
 
-      {/* First Name */}
-      <div className="mb-4">
-        <Label htmlFor="firstName">First Name</Label>
-        <Input
-          id="firstName"
-          type="text"
-          {...register('firstName')}
-        />
+      {/* Profile Picture Upload */}
+      <div className="mb-6 text-center">
+        <label className="block text-sm font-semibold mb-2">Profile Image (Optional)</label>
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleProfileImageChange} className="hidden" />
+
+        {/* Show Image Preview */}
+        {previewUrl && (
+          <img
+            src={previewUrl}
+            alt="Profile Preview"
+            className="w-24 h-24 rounded-full object-cover mb-3 m-auto"
+            onClick={handleOpenInputFile}
+          />
+        )}
+        <p className="text-sm" onClick={handleOpenInputFile}>Upload Image</p>
+      </div>
+
+      <div className="flex gap-4">
+        {/* First Name */}
+        <div className="mb-4">
+          <Label htmlFor="firstName">First Name</Label>
+          <Input
+            id="firstName"
+            type="text"
+            {...register('firstName')}
+          />
         {errors.firstName && <div className="text-red-500 text-sm">{errors.firstName.message}</div>}
       </div>
 
-      {/* Last Name */}
-      <div className="mb-4">
-        <Label htmlFor="lastName">Last Name</Label>
-        <Input
-          id="lastName"
-          type="text"
-          {...register('lastName')}
-        />
-        {errors.lastName && <div className="text-red-500 text-sm">{errors.lastName.message}</div>}
+        {/* Last Name */}
+        <div className="mb-4">
+          <Label htmlFor="lastName">Last Name</Label>
+          <Input
+            id="lastName"
+            type="text"
+            {...register('lastName')}
+          />
+          {errors.lastName && <div className="text-red-500 text-sm">{errors.lastName.message}</div>}
+        </div>
       </div>
 
       {/* Email */}
@@ -116,7 +138,7 @@ export default function RegisterForm() {
           className={`w-full bg-black text-sm text-white p-2 rounded-md h-10 ${loading ? 'bg-gray-400' : ''}`}
           disabled={loading}
         >
-          {loading ? 'Register in...' : 'Register'}
+          Register
         </button>
       </div>
 
