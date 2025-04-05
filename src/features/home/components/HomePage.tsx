@@ -19,19 +19,22 @@ import { User } from "@/libs/api/auth";
 import useWebSocket from "@/features/_shared/hooks/useWebSocket.hook";
 import { ChatMessage, fetchChatMessages } from "@/libs/api/chat";
 import ChatMessageComponent from "./ChatMessage";
+import { useAppDispatch, useAppSelector } from "@/libs/redux/redux.hook";
+import { Provider } from 'react-redux'
+import { store } from '@/libs/redux/redux.store'
 
-export default function HomePage() {
+function HomePageComponent() {
   const [isModalOpen, toggleModal] = useState<boolean>(false)
   const [addFriendLoading, toggleAddFriendLoading] = useState<boolean>(false)
   const router = useRouter()
   const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([])
   const [friends, setFriends] = useState<User[]>([])
-  const [searchedFriends, setSearchedFriends] = useState<User[]>([])
   const [searchText, setSearchText ]= useState<string>('')
   const [chatFriend, selectChatFriend] = useState<User | null>(null)
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [messageText, setMessageText] = useState<string>('')
 
+  const onlineUserIds = useAppSelector(state => state.friends.onlineUserIds)
   const { handleSocketSendMessage, receivedMessage, setReceivedMessage } = useWebSocket()
 
   useEffect(() => {
@@ -61,6 +64,12 @@ export default function HomePage() {
 
   const handleToggleAddFriendModal = () => {
     toggleModal(false)
+  }
+
+  const isOnline = (userId: string) => {
+    onlineUserIds.find(
+      onlineUserId => onlineUserId.toString() === userId.toString()
+    )
   }
 
   const handleAddFriend: SubmitHandler<AddFriendFormData> = async (data) => {
@@ -115,15 +124,6 @@ export default function HomePage() {
   }
 
   const handleInputSearchFriend = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const _searchText = e.target.value
-    if (_searchText) {
-      setSearchedFriends(
-        friends.filter(friend => 
-          (friend.firstName + friend.lastName + friend.email).includes(_searchText)
-        )
-      )
-    }
-
     setSearchText(e.target.value)
   }
 
@@ -154,12 +154,20 @@ export default function HomePage() {
     }
   }
 
+  let _friends = searchText 
+    ? friends.filter(friend => 
+        (friend.firstName + friend.lastName + friend.email).includes(searchText)) 
+    : friends
+
+  const onlineFriends = _friends.filter(friend => onlineUserIds.includes(friend.id.toString()))
+  const offlineFriends = _friends.filter(friend => !onlineUserIds.includes(friend.id.toString()))
+
   return (
     <AuthGuard>
       <Modal isOpen={isModalOpen} isLoading={addFriendLoading} onClose={handleToggleAddFriendModal} onAddFriend={handleAddFriend} />
 
       {/* Sidebar */}
-      <div className="w-80 h-screen border-r border-gray-300">
+      <div className="w-[calc(.25rem*80)] h-screen border-r border-gray-300">
         <div className="">
 
           {/* Navigation Bar */}
@@ -195,8 +203,9 @@ export default function HomePage() {
           <div className="border-b border-gray-300 p-2 py-4">
             <h2 className="font-semibold text-gray-400 mb-2">Friend Requests</h2>
 
-            {friendRequests.map((friendRequest) => (
+            {friendRequests.map((friendRequest, i) => (
               <FriendRequestCard 
+                key={i}
                 friendRequest={friendRequest} 
                 onAccept={handleAcceptFriendRequest} 
                 onReject={handleRejectFriendRequest} 
@@ -212,19 +221,28 @@ export default function HomePage() {
           {/* Friend Online Section */}
           <div className="border-gray-300 p-2 pt-4">
             <h2 className="font-semibold text-gray-400 mb-2">Online — 2</h2>
-            {searchText 
-              ? searchedFriends.map(friend => <FriendCard user={friend} onSelect={handleShowFriendChat}/>)
-              : friends.map(friend => <FriendCard user={friend} onSelect={handleShowFriendChat}/>)
-            }
+            {onlineFriends.map((friend, i) =>
+              <FriendCard
+                key={i}
+                selected={chatFriend && chatFriend.id === friend.id}
+                user={friend}
+                onSelect={handleShowFriendChat}
+                online 
+              />
+            )}
           </div>
 
           {/* Friend Offline Section */}
           <div className="border-gray-300 p-2">
             <h2 className="font-semibold text-gray-400 mb-2">Offline — 2</h2>
-            {searchText 
-              ? searchedFriends.map(friend => <FriendCard user={friend} onSelect={handleShowFriendChat}/>)
-              : friends.map(friend => <FriendCard user={friend} onSelect={handleShowFriendChat}/>)
-            }
+            {offlineFriends.map((friend, i) => 
+              <FriendCard 
+                key={i}
+                selected={chatFriend && chatFriend.id === friend.id} 
+                user={friend} 
+                onSelect={handleShowFriendChat} 
+              />
+            )}
           </div>
           
         </div>
@@ -234,13 +252,20 @@ export default function HomePage() {
       <div className="flex-1 w-full">
         {/* Chat Friend */}
         <div className="text-xl p-2 h-[80px] border-b border-gray-300 p-2">
-          {chatFriend && <FriendCard user={chatFriend} onSelect={() => {}} className="mt-1" />}
+          {chatFriend && 
+            <FriendCard 
+              user={chatFriend} 
+              onSelect={() => {}} 
+              online={onlineUserIds.includes(chatFriend.id.toString())}
+              className="mt-1" 
+            />
+          }
         </div>
 
-        {/* Chat Messages */}
-        <div className="h-[calc(100vh-160px)] bg-blue-50 p-4">
-          {chatFriend && chatMessages.map(message => (
-            <ChatMessageComponent message={message} chatFriend={chatFriend} />
+        {/* Chat Messages Box */}
+        <div className="h-[calc(100vh-160px)] w-[calc(100vw-(.25rem*80))] bg-blue-50 p-4 overflow-y-auto">
+          {chatFriend && chatMessages.map((message, i) => (
+            <ChatMessageComponent key={i} message={message} chatFriend={chatFriend} />
           ))}
         </div>
         
@@ -259,5 +284,13 @@ export default function HomePage() {
       </div>
  
     </AuthGuard>
+  )
+}
+
+export default function HomePage() {
+  return (
+    <Provider store={store}>
+      <HomePageComponent />
+    </Provider>
   )
 }

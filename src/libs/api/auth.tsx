@@ -5,7 +5,7 @@ export type User = {
   email: string
   firstName: string
   lastName: string
-  profileImage?: string
+  profilePic?: string
 }
 
 type RegisterUserParams = {
