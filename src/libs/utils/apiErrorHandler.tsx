@@ -8,8 +8,10 @@ export function handleError(e: any) {
   if (authExceptions.includes(errName)) 
     localStorage.removeItem("token")
 
-  if (e?.status === 422 || e?.status === 400)
-    alert(`${errName} ${errMsg}`)
-  else 
-    alert(`${errName}`)
+  alert(`${errName} ${errMsg}`)
+
+  // if (e?.status === 422 || e?.status === 400)
+  //   alert(`${errName} ${errMsg}`)
+  // else 
+  //   alert(`${errName}`)
 }

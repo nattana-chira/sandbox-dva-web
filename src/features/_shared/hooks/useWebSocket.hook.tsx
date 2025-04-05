@@ -1,17 +1,17 @@
+import { ChatMessage } from '@/libs/api/chat';
 import { config } from '@/libs/config';
-import React, { useState, useEffect, useRef } from 'react';
+import { handleError } from '@/libs/utils/apiErrorHandler';
+import { useState, useEffect, useRef } from 'react';
 
 type SocketMessage = {
   token: string
-  senderId: string | number
   receiverId: string | number
   type: string
   content: string
 }
 
 const useWebSocket = () => {
-  const [messages, setMessages] = useState<string[]>([]);
-  const [newMessage, setNewMessage] = useState<string>('');
+  const [receivedMessage, setReceivedMessage] = useState<ChatMessage | null>(null);
   const ws = useRef<WebSocket | null>(null);
 
   useEffect(() => {
@@ -23,52 +23,37 @@ const useWebSocket = () => {
 
     // Listen for messages from the server
     ws.current.onmessage = (event) => {
-      setMessages((prevMessages) => [...prevMessages, event.data]);
-    };
+      console.log("event.data", event.data)
+      setReceivedMessage(JSON.parse(event.data))
+    }
 
     // Cleanup WebSocket connection on component unmount
     return () => {
       if (ws.current) {
-        ws.current.close();
+        ws.current.close()
       }
-    };
-  }, []);
+    }
+  }, [])
 
-  const handleSendMessage = () => {
-    if (ws.current && newMessage) {
-      const token = localStorage.getItem('token') || '';
-
-      const socketMessage: SocketMessage = {
-        token, 
-        senderId: 10,
-        receiverId: 20,
-        type: 'message',
-        content: newMessage
+  const handleSocketSendMessage = ({ receiverId, messageText }: { receiverId: string, messageText: string}) => {
+    try {
+      if (ws.current && messageText) {
+        const token = localStorage.getItem('token') || ''
+  
+        const socketMessage: SocketMessage = {
+          token, 
+          receiverId,
+          type: 'message',
+          content: messageText
+        }
+        ws.current.send(JSON.stringify(socketMessage))
       }
-      ws.current.send(JSON.stringify(socketMessage));
-      setNewMessage('');
+    } catch (e) {
+      handleError(e)
     }
   }
 
-  return { handleSendMessage }
+  return { handleSocketSendMessage, receivedMessage, setReceivedMessage }
+}
 
-  // return (
-  //   <div>
-  //     <h3>Messages</h3>
-  //     <ul>
-  //       {messages.map((msg, index) => (
-  //         <li key={index}>{msg}</li>
-  //       ))}
-  //     </ul>
-  //     <input
-  //       type="text"
-  //       value={newMessage}
-  //       onChange={(e) => setNewMessage(e.target.value)}
-  //       placeholder="Type a message"
-  //     />
-  //     <button onClick={handleSendMessage}>Send</button>
-  //   </div>
-  // );
-};
-
-export default useWebSocket;
+export default useWebSocket

@@ -34,12 +34,12 @@ const FriendRequestCard: React.FC<Props> = ({ friendRequest, onAccept, onReject 
     <div className="w-[50px] flex space-x-2 justify-end flex-shrink-0">
       <span
         onClick={() => !loading && onAccept(friendRequest.id, toggleLoading)}
-        className={`text-2xl ${loading ? 'text-grey-500' : 'text-green-500'}`}>
+        className={`text-2xl cursor-pointer ${loading ? 'text-grey-500' : 'text-green-500'}`}>
         ✔
       </span>
       <span
         onClick={() => !loading && onReject(friendRequest.id, toggleLoading)}
-        className={`text-2xl ${loading ? 'text-grey-500' : 'text-red-500'}`}>
+        className={`text-2xl cursor-pointer ${loading ? 'text-grey-500' : 'text-red-500'}`}>
         ✘
       </span>
     </div>

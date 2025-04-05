@@ -57,7 +57,7 @@ export default function RegisterForm() {
       <div className="text-sm font-semibold text-gray-700 opacity-50 text-center mb-5">Create a new account to get started</div>
 
       {/* Profile Picture Upload */}
-      <div className="mb-6 text-center">
+      <div className="mb-6 text-center ">
         <label className="block text-sm font-semibold mb-2">Profile Image (Optional)</label>
         <input ref={fileInputRef} type="file" accept="image/*" onChange={handleProfileImageChange} className="hidden" />
 
@@ -66,11 +66,11 @@ export default function RegisterForm() {
           <img
             src={previewUrl}
             alt="Profile Preview"
-            className="w-24 h-24 rounded-full object-cover mb-3 m-auto"
+            className="w-24 h-24 rounded-full object-cover mb-3 m-auto cursor-pointer"
             onClick={handleOpenInputFile}
           />
         )}
-        <p className="text-sm" onClick={handleOpenInputFile}>Upload Image</p>
+        <span className="text-sm cursor-pointer" onClick={handleOpenInputFile}>Upload Image</span>
       </div>
 
       <div className="flex gap-4">
@@ -135,7 +135,7 @@ export default function RegisterForm() {
       <div className="mt-4">
         <button
           type="submit"
-          className={`w-full bg-black text-sm text-white p-2 rounded-md h-10 ${loading ? 'bg-gray-400' : ''}`}
+          className={`w-full bg-black text-sm text-white p-2 rounded-md h-10 cursor-pointer ${loading ? 'bg-gray-400' : ''}`}
           disabled={loading}
         >
           Register

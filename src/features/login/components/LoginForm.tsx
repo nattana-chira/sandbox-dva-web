@@ -68,7 +68,7 @@ export default function LoginForm() {
       <div className="mt-4">
         <button
           type="submit"
-          className={`w-full bg-black text-sm text-white p-2 rounded-md h-10 ${loading ? 'bg-gray-400' : ''}`}
+          className={`w-full bg-black text-sm text-white p-2 rounded-md h-10 cursor-pointer ${loading ? 'bg-gray-400' : ''}`}
           disabled={loading}
         >
           Login

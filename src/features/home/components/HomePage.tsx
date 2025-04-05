@@ -17,6 +17,8 @@ import { SubmitHandler } from "react-hook-form";
 import { AddFriendFormData } from "../homePage.interfaces";
 import { User } from "@/libs/api/auth";
 import useWebSocket from "@/features/_shared/hooks/useWebSocket.hook";
+import { ChatMessage, fetchChatMessages } from "@/libs/api/chat";
+import ChatMessageComponent from "./ChatMessage";
 
 export default function HomePage() {
   const [isModalOpen, toggleModal] = useState<boolean>(false)
@@ -26,29 +28,24 @@ export default function HomePage() {
   const [friends, setFriends] = useState<User[]>([])
   const [searchedFriends, setSearchedFriends] = useState<User[]>([])
   const [searchText, setSearchText ]= useState<string>('')
+  const [chatFriend, selectChatFriend] = useState<User | null>(null)
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
+  const [messageText, setMessageText] = useState<string>('')
 
-  // const { handleSendMessage } = useWebSocket()
-
-  console.log(" HOMEPAGE ")
-
-  const user = {
-    id: "1",
-    email: "jonedoe@gmail.com",
-    firstName: "John",
-    lastName: "Doe",
-    profileImage: "linktomage"
-  }
+  const { handleSocketSendMessage, receivedMessage, setReceivedMessage } = useWebSocket()
 
   useEffect(() => {
     getFriends()
     getFriendRequests()
   }, [])
 
-  const getAuth = () => {
-    fetchFriends()
-      .then((res) => setFriends(res.data))
-      .catch(handleError)
-  } 
+  // Add real-time message received from web socket server
+  useEffect(() => {
+    if (receivedMessage && chatFriend && chatFriend.id === receivedMessage.senderId) {
+      setChatMessages([...chatMessages, receivedMessage])
+      setReceivedMessage(null)
+    }
+  }, [receivedMessage])
 
   const getFriends = () => {
     fetchFriends()
@@ -130,17 +127,32 @@ export default function HomePage() {
     setSearchText(e.target.value)
   }
 
-  const handleShowFriendChat = () => {
-
+  const handleShowFriendChat = async (friend: User) => {
+    try {
+      setChatMessages([])
+      selectChatFriend(friend)
+      const res = await fetchChatMessages({ friendUserId: friend.id })
+      setChatMessages(res.data)
+      
+    } catch (e) {
+      handleError(e)
+    }
   }
 
-  const handleInputMessage = () => {
-
+  const handleInputMessage = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (chatFriend) {
+      setMessageText(e.target.value)
+    }
   }
 
-  // const handleSendMessage = () => {
-    
-  // }
+  const handleSendMessage = async () => {
+    if (chatFriend && messageText) {
+      handleSocketSendMessage({ receiverId: chatFriend.id, messageText })
+      setMessageText('')
+      const res = await fetchChatMessages({ friendUserId: chatFriend.id })
+      setChatMessages(res.data)
+    }
+  }
 
   return (
     <AuthGuard>
@@ -168,12 +180,12 @@ export default function HomePage() {
 
             <div className="w-[80px] flex justify-end">
               {/* Add Friend */}
-              <div className="w-[25px] mr-4">
+              <div className="w-[25px] mr-4 cursor-pointer">
                 <FontAwesomeIcon icon={faUserPlus} onClick={() => toggleModal(true)} className="add-friend-icon" />
               </div>
 
               {/* Log Out */}
-              <div className="w-[25px]">
+              <div className="w-[25px] cursor-pointer">
                 <FontAwesomeIcon icon={faRightFromBracket} onClick={handleLogOut} className="log-out-icon" />
               </div>
             </div>
@@ -201,18 +213,17 @@ export default function HomePage() {
           <div className="border-gray-300 p-2 pt-4">
             <h2 className="font-semibold text-gray-400 mb-2">Online — 2</h2>
             {searchText 
-              ? searchedFriends.map(friend => <FriendCard user={friend} onSelect={() => {}}/>)
-              : friends.map(friend => <FriendCard user={friend} onSelect={() => {}}/>)
+              ? searchedFriends.map(friend => <FriendCard user={friend} onSelect={handleShowFriendChat}/>)
+              : friends.map(friend => <FriendCard user={friend} onSelect={handleShowFriendChat}/>)
             }
-              
           </div>
 
           {/* Friend Offline Section */}
           <div className="border-gray-300 p-2">
             <h2 className="font-semibold text-gray-400 mb-2">Offline — 2</h2>
             {searchText 
-              ? searchedFriends.map(friend => <FriendCard user={friend} onSelect={() => {}}/>)
-              : friends.map(friend => <FriendCard user={friend} onSelect={() => {}}/>)
+              ? searchedFriends.map(friend => <FriendCard user={friend} onSelect={handleShowFriendChat}/>)
+              : friends.map(friend => <FriendCard user={friend} onSelect={handleShowFriendChat}/>)
             }
           </div>
           
@@ -223,28 +234,22 @@ export default function HomePage() {
       <div className="flex-1 w-full">
         {/* Chat Friend */}
         <div className="text-xl p-2 h-[80px] border-b border-gray-300 p-2">
-          <FriendCard user={user} onSelect={() => {}} className="mt-1" />
+          {chatFriend && <FriendCard user={chatFriend} onSelect={() => {}} className="mt-1" />}
         </div>
 
         {/* Chat Messages */}
         <div className="h-[calc(100vh-160px)] bg-blue-50 p-4">
-            <div className="w-fit h-fit bg-white items-center justify-center rounded-lg border border-gray-300 p-2 mb-2">
-              <div>chat 1</div>
-              <div className="text-xs text-gray-400">10:30 AM</div>
-            </div>
-
-            <div className="w-fit h-fit bg-black text-white items-center justify-center rounded-lg border border-gray-300 p-2 mb-2 ml-auto">
-              <div>chat 2222222222222</div>
-              <div className="text-xs text-gray-400">10:34 AM</div>
-            </div>
+          {chatFriend && chatMessages.map(message => (
+            <ChatMessageComponent message={message} chatFriend={chatFriend} />
+          ))}
         </div>
-
+        
         {/* Message Input */}
         <div className="sticky bottom-0 h-[80px] border-t border-gray-300 flex items-center p-2">
-          <Textarea id="message" placeholder="Type a message..." className="h-15 text-xs resize-none" />
+          <Textarea id="message" placeholder="Type a message..." className="h-15 text-xs resize-none" value={messageText} onChange={handleInputMessage} />
           <div className="h-15 pl-2 pr-15">
             <button
-              // onClick={() => {}}
+              onClick={handleSendMessage}
               className="bg-black text-sm text-white rounded-md h-9 px-4 py-2"
             >
               Send

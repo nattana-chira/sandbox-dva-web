@@ -12,11 +12,11 @@ type AddFriendParams = {
   email: string
 };
 
-type GetFriendsResponse = {
+type FetchFriendsResponse = {
   data: User[]
 };
 
-type GetFriendRequestsResponse = {
+type FetchFriendRequestsResponse = {
   data: FriendRequest[]
 };
 
@@ -28,11 +28,11 @@ export async function sendFriendRequest({ email }: AddFriendParams) {
   return await API.post('/api/friends/requests', { email })
 }
 
-export async function fetchFriends(): Promise<GetFriendsResponse> {
+export async function fetchFriends(): Promise<FetchFriendsResponse> {
   return await API.get('/api/friends')
 }
 
-export async function fetchFriendRequests(): Promise<GetFriendRequestsResponse> {
+export async function fetchFriendRequests(): Promise<FetchFriendRequestsResponse> {
   return await API.get('/api/friends/requests')
 }
 

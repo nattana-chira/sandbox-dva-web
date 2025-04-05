@@ -3,13 +3,13 @@ import React from "react";
 
 interface Props {
   user: User
-  onSelect: () => void
+  onSelect: (user: User) => void
   className?: string
 }
 
 const FriendCard: React.FC<Props> = ({ user, className, onSelect }) => {
   return (
-  <div className={`flex mb-1 py-1 ${className}`}>
+  <div className={`flex mb-1 py-1 cursor-pointer ${className}`} onClick={() => onSelect(user)}>
     {/* Profile Image */}
     <div className="w-[50px] h-11 flex-shrink-0">
       <img 
