@@ -1,21 +1,22 @@
 "use client"
 
-import Input from "@/components/form/Input";
-import FriendCard from "@/components/home/FriendCard";
-import FriendRequestCard from "@/components/home/FriendRequestCard";
+import Input from "@/features/_shared/components/form/Input";
+import FriendCard from "@/features/home/components/FriendCard";
+import FriendRequestCard from "@/features/home/components/FriendRequestCard";
 import { faBell } from '@fortawesome/free-regular-svg-icons'; 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faRightFromBracket, faUserPlus } from "@fortawesome/free-solid-svg-icons";
-import Textarea from "@/components/form/Textarea";
-import AuthGuard from "@/components/AuthGuard";
+import Textarea from "@/features/_shared/components/form/Textarea";
+import AuthGuard from "@/features/_shared/components/AuthGuard";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Modal from "./AddFriendModal";
 import { handleError } from "@/libs/utils/apiErrorHandler";
 import { acceptFriendRequest, FriendRequest, fetchFriendRequests, fetchFriends, rejectFriendRequest, sendFriendRequest } from "@/libs/api/friend";
 import { SubmitHandler } from "react-hook-form";
-import { AddFriendFormData } from "./homePage.interfaces";
+import { AddFriendFormData } from "../homePage.interfaces";
 import { User } from "@/libs/api/auth";
+import useWebSocket from "@/features/_shared/hooks/useWebSocket.hook";
 
 export default function HomePage() {
   const [isModalOpen, toggleModal] = useState<boolean>(false)
@@ -25,6 +26,10 @@ export default function HomePage() {
   const [friends, setFriends] = useState<User[]>([])
   const [searchedFriends, setSearchedFriends] = useState<User[]>([])
   const [searchText, setSearchText ]= useState<string>('')
+
+  // const { handleSendMessage } = useWebSocket()
+
+  console.log(" HOMEPAGE ")
 
   const user = {
     id: "1",
@@ -39,11 +44,16 @@ export default function HomePage() {
     getFriendRequests()
   }, [])
 
+  const getAuth = () => {
+    fetchFriends()
+      .then((res) => setFriends(res.data))
+      .catch(handleError)
+  } 
 
   const getFriends = () => {
     fetchFriends()
-    .then((res) => setFriends(res.data))
-    .catch(handleError)
+      .then((res) => setFriends(res.data))
+      .catch(handleError)
   } 
 
   const getFriendRequests = () => {
@@ -128,9 +138,9 @@ export default function HomePage() {
 
   }
 
-  const handleSendMessage = () => {
+  // const handleSendMessage = () => {
     
-  }
+  // }
 
   return (
     <AuthGuard>

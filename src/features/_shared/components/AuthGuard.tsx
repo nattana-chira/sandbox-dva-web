@@ -25,6 +25,6 @@ const AuthGuard = ({ children }: Props) => {
       return null
 
   return <>{children}</>
-};
+}
 
 export default AuthGuard;

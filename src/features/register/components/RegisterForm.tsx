@@ -3,14 +3,14 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import Input from "../form/Input";
-import Label from "../form/Label";
+import Input from "@/features/_shared/components/form/Input";
+import Label from "@/features/_shared/components/form/Label";
 import Link from "next/link";
 import { registerUser } from "@/libs/api/auth";
 import { handleError } from "@/libs/utils/apiErrorHandler";
 import { useRouter } from "next/navigation";
-import { FormData } from "./registerForm.interfaces";
-import { schema } from "./registerForm.schemas";
+import { FormData } from "../registerForm.interfaces";
+import { schema } from "../registerForm.schemas";
 
 export default function RegisterForm() {
   const [loading, setLoading] = useState<boolean>(false)

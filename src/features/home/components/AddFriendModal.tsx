@@ -1,9 +1,9 @@
-import Input from "../form/Input";
-import Label from "../form/Label";
+import Input from "../../_shared/components/form/Input";
+import Label from "../../_shared/components/form/Label";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { AddFriendFormData } from "./homePage.interfaces";
+import { AddFriendFormData } from "../homePage.interfaces";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { addFriendSchema } from "./homePage.schemas";
+import { addFriendSchema } from "../homePage.schemas";
 import { faClose } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useEffect } from "react";

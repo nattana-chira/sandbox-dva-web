@@ -1,24 +1,24 @@
 import axios from "axios";
-import { API_URL } from "../constants";
+import { config } from "../config";
 
 export const API = axios.create({
-  baseURL: API_URL,
+  baseURL: config.API_URL,
   headers: {
     "Content-Type": "application/json",
   }
 })
 
 // Interceptor to add JWT token to every request
-API.interceptors.request.use((config) => {
+API.interceptors.request.use((_config) => {
   const token = localStorage.getItem("token");
 
-  if (!config.headers) 
-    config.headers = {}
+  if (!_config.headers) 
+    _config.headers = {}
   
   if (token) 
-    config.headers.Authorization = `Bearer ${token}`
+    _config.headers.Authorization = `Bearer ${token}`
   
-  return config;
+  return _config;
 })
 
 export default API

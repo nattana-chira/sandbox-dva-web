@@ -3,11 +3,11 @@
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import Input from "../form/Input";
-import Label from "../form/Label";
+import Input from "../../_shared/components/form/Input";
+import Label from "../../_shared/components/form/Label";
 import Link from "next/link";
-import { schema } from "./loginForm.schemas";
-import { FormData } from "./loginForm.interfaces";
+import { schema } from "../loginForm.schemas";
+import { FormData } from "../loginForm.interfaces";
 import { loginUser } from "@/libs/api/auth";
 import { useRouter } from "next/navigation";
 import { handleError } from "@/libs/utils/apiErrorHandler";

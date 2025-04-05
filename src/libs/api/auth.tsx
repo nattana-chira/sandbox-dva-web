@@ -1,4 +1,3 @@
-import { API_URL } from "../constants";
 import API from "../utils/api";
 
 export type User = {
@@ -38,11 +37,11 @@ export async function registerUser({ firstName, lastName, email, password, profi
   if (profilePic) 
     formData.append("file", profilePic)
 
-  return await API.post(API_URL + "/api/auth/register", formData, {
+  return await API.post("/api/auth/register", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   })
 }
 
 export async function loginUser({ email, password }: LoginParams): Promise<LoginResponse> {
-  return await API.post(API_URL + "/api/auth/login", { email, password })
+  return await API.post("/api/auth/login", { email, password })
 }
