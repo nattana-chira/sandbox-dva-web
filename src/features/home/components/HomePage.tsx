@@ -72,7 +72,7 @@ function HomePageComponent() {
       toggleAddFriendLoading(true)
       const res = await sendFriendRequest(data)
       handleSocketSendFriendRequest({ msgReceiverId: res.data.receiverId })
-      alert('Add Friend successfully')
+      alert('Send friend request successfully')
       toggleModal(false)
 
     } catch (e) {

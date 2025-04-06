@@ -1,6 +1,8 @@
 "use client"
 
 import { FriendRequest } from "@/libs/api/friend";
+import { faCheck, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useState } from "react";
 
 interface Props {
@@ -32,16 +34,16 @@ const FriendRequestCard: React.FC<Props> = ({ friendRequest, onAccept, onReject 
 
     {/* Action Buttons */}
     <div className="w-[50px] flex space-x-2 justify-end flex-shrink-0">
-      <span
+      <FontAwesomeIcon 
+        icon={faCheck} 
         onClick={() => !loading && onAccept(friendRequest.id, toggleLoading)}
-        className={`text-2xl cursor-pointer ${loading ? 'text-grey-500' : 'text-green-500'}`}>
-        ✔
-      </span>
-      <span
+        className={`text-xl cursor-pointer mr-6 mt-2 ${loading ? 'text-grey-500' : 'text-green-500'}`}
+      />
+      <FontAwesomeIcon 
+        icon={faTimes} 
         onClick={() => !loading && onReject(friendRequest.id, toggleLoading)}
-        className={`text-2xl cursor-pointer ${loading ? 'text-grey-500' : 'text-red-500'}`}>
-        ✘
-      </span>
+        className={`text-xl cursor-pointer mr-4 mt-2 ${loading ? 'text-grey-500' : 'text-red-500'}`}
+      />
     </div>
   </div>
   )
