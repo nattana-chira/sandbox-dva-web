@@ -20,8 +20,8 @@ Web running on http://localhost:3000
 
 ## Getting Started
 
-NextJs for frontend  
-Redux for state management  
-TailwindCss for DOM styling  
-Yup for form validation
-Date-Fns for date format
+- NextJs for frontend  
+- Redux for state management  
+- TailwindCss for DOM styling  
+- Yup for form validation
+- Date-Fns for date format
