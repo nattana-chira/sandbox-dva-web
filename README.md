@@ -37,7 +37,7 @@ project/
 │   ├── feature/             # Seperate each modules by web page
 │   │   ├── _shared/x        # Share components/hooks between feature
 │   │   ├── home/      
-│   │   │   ├── components   # Components in /home feature
+│   │   │   ├── components/  # Components in /home feature
 │   │   │   ├── .interfaces  # Interfaces/Types 
 │   │   │   └── .schemas     # Form data schema
 │   │   ├── login/           
