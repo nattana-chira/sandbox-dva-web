@@ -18,7 +18,7 @@ docker-compose up
 
 Web running on http://localhost:3000
 
-## Getting Started
+## Description
 
 - NextJs for frontend  
 - Redux for state management  
