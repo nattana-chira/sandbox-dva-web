@@ -39,7 +39,7 @@ const HomePageFriend: React.FC<Props> = (
 
       {/* Friend Online Section */}
       <div className="border-gray-300 p-2 pt-4">
-        <h2 className="font-semibold text-gray-400 mb-2">Online — 2</h2>
+        <h2 className="font-semibold text-gray-400 mb-2">Online — {onlineFriends.length}</h2>
         {onlineFriends.map((friend, i) =>
           <FriendCard
             key={i}
@@ -53,7 +53,7 @@ const HomePageFriend: React.FC<Props> = (
 
       {/* Friend Offline Section */}
       <div className="border-gray-300 p-2">
-        <h2 className="font-semibold text-gray-400 mb-2">Offline — 2</h2>
+        <h2 className="font-semibold text-gray-400 mb-2">Offline — {offlineFriends.length}</h2>
         {offlineFriends.map((friend, i) => 
           <FriendCard 
             key={i}
