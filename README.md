@@ -25,3 +25,4 @@ Web running on http://localhost:3000
 - TailwindCss for DOM styling  
 - Yup for form validation
 - Date-Fns for date format
+- Docker for deployment
