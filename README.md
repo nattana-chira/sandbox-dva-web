@@ -15,3 +15,5 @@ Option 2: run on docker container:
 ```bash
 docker-compose up
 ```
+
+Web running on http://localhost:3000
