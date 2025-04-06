@@ -13,7 +13,7 @@ npm run dev
 
 Option 2: run on docker container:
 ```bash
-docker-compose up
+docker-compose up --build
 ```
 
 Web running on http://localhost:3000
