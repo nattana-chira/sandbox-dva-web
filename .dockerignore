@@ -1,0 +1,14 @@
+# .dockerignore
+/node_modules
+npm-debug.log
+.next
+Dockerfile
+docker-compose.yml
+.dockerignore
+.env*
+
+# Ignore all .env* files
+.env*
+
+# But don't ignore the example file
+!.env.example
