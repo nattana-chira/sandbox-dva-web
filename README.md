@@ -1,7 +1,11 @@
 ## Getting Started
 
-Option 1: run the development server:
+Copy .env
+```bash
+cp .env.example .env
+```
 
+Option 1: run the development server:
 ```bash
 npm install
 npm run dev
