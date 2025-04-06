@@ -3,7 +3,8 @@ import { config } from '@/libs/config';
 import { useAppDispatch, useAppSelector } from '@/libs/redux/redux.hook';
 import { handleError } from '@/libs/utils/apiErrorHandler';
 import { useState, useEffect, useRef } from 'react';
-import { setOnlineUserIds, addOnlineUserId, removeOnlineUserId } from "@/libs/redux/friends.slice";
+import { setOnlineUserIds, addOnlineUserId, removeOnlineUserId, setFriendRequests, setFriends } from "@/libs/redux/friends.slice";
+import { fetchFriendRequests, fetchFriends } from '@/libs/api/friend';
 
 type SocketMessage = {
   token: string
@@ -15,8 +16,6 @@ type SocketMessage = {
 const useWebSocket = () => {
   const [receivedMessage, setReceivedMessage] = useState<ChatMessage | null>(null);
   const ws = useRef<WebSocket | null>(null);
-
-  // const _friends = useAppSelector(state => state.friends.friends)
   const dispatch = useAppDispatch()
 
   useEffect(() => {
@@ -50,6 +49,20 @@ const useWebSocket = () => {
           dispatch(removeOnlineUserId(socketMessage.userId))
           break
 
+        case 'send-friend-request':
+          console.log('send-friend-request')
+          fetchFriendRequests()
+            .then((res) => dispatch(setFriendRequests(res.data)))
+            .catch(handleError)
+          break
+
+        case 'accept-friend-request':
+          console.log('accept-friend-request')
+          fetchFriends()
+            .then((res) => dispatch(setFriends(res.data)))
+            .catch(handleError)
+          break
+
         default: break
       }
     }
@@ -62,14 +75,14 @@ const useWebSocket = () => {
     }
   }, [])
 
-  const handleSocketSendMessage = ({ receiverId, messageText }: { receiverId: string, messageText: string}) => {
+  const handleSocketSendMessage = ({ msgReceiverId, messageText }: { msgReceiverId: string, messageText: string}) => {
     try {
       if (ws.current && messageText) {
         const token = localStorage.getItem('token') || ''
   
         const socketMessage: SocketMessage = {
           token, 
-          receiverId,
+          receiverId: msgReceiverId,
           type: 'message',
           content: messageText
         }
@@ -80,7 +93,41 @@ const useWebSocket = () => {
     }
   }
 
-  return { handleSocketSendMessage, receivedMessage, setReceivedMessage }
+  const handleSocketSendFriendRequest = ({ msgReceiverId }: { msgReceiverId: string }) => {
+    try {
+      if (ws.current) {
+        const token = localStorage.getItem('token') || ''
+  
+        const socketMessage = {
+          token, 
+          receiverId: msgReceiverId,
+          type: 'send-friend-request',
+        }
+        ws.current.send(JSON.stringify(socketMessage))
+      }
+    } catch (e) {
+      handleError(e)
+    }
+  }
+
+  const handleSocketAcceptFriendRequest = ({ msgReceiverId }: { msgReceiverId: string }) => {
+    try {
+      if (ws.current) {
+        const token = localStorage.getItem('token') || ''
+  
+        const socketMessage = {
+          token,
+          receiverId: msgReceiverId,
+          type: 'accept-friend-request',
+        }
+        ws.current.send(JSON.stringify(socketMessage))
+      }
+    } catch (e) {
+      handleError(e)
+    }
+  }
+
+  return { handleSocketSendMessage, handleSocketSendFriendRequest, handleSocketAcceptFriendRequest, receivedMessage, setReceivedMessage }
 }
 
 export default useWebSocket

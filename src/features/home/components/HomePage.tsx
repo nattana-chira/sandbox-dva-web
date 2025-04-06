@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Modal from "./AddFriendModal";
 import { handleError } from "@/libs/utils/apiErrorHandler";
-import { acceptFriendRequest, FriendRequest, fetchFriendRequests, fetchFriends, rejectFriendRequest, sendFriendRequest } from "@/libs/api/friend";
+import { acceptFriendRequest, fetchFriendRequests, fetchFriends, rejectFriendRequest, sendFriendRequest } from "@/libs/api/friend";
 import { SubmitHandler } from "react-hook-form";
 import { AddFriendFormData } from "../homePage.interfaces";
 import { User } from "@/libs/api/auth";
@@ -22,20 +22,26 @@ import ChatMessageComponent from "./ChatMessage";
 import { useAppDispatch, useAppSelector } from "@/libs/redux/redux.hook";
 import { Provider } from 'react-redux'
 import { store } from '@/libs/redux/redux.store'
+import { setFriendRequests, setFriends } from "@/libs/redux/friends.slice";
 
 function HomePageComponent() {
   const [isModalOpen, toggleModal] = useState<boolean>(false)
   const [addFriendLoading, toggleAddFriendLoading] = useState<boolean>(false)
   const router = useRouter()
-  const [friendRequests, setFriendRequests] = useState<FriendRequest[]>([])
-  const [friends, setFriends] = useState<User[]>([])
   const [searchText, setSearchText ]= useState<string>('')
   const [chatFriend, selectChatFriend] = useState<User | null>(null)
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([])
   const [messageText, setMessageText] = useState<string>('')
 
-  const onlineUserIds = useAppSelector(state => state.friends.onlineUserIds)
-  const { handleSocketSendMessage, receivedMessage, setReceivedMessage } = useWebSocket()
+  const { friends, onlineUserIds, friendRequests } = useAppSelector(state => state.friends)
+  const dispatch = useAppDispatch()
+  const { 
+    handleSocketSendMessage, 
+    handleSocketSendFriendRequest, 
+    handleSocketAcceptFriendRequest, 
+    receivedMessage, 
+    setReceivedMessage 
+  } = useWebSocket()
 
   useEffect(() => {
     getFriends()
@@ -52,13 +58,13 @@ function HomePageComponent() {
 
   const getFriends = () => {
     fetchFriends()
-      .then((res) => setFriends(res.data))
+      .then((res) => dispatch(setFriends(res.data)))
       .catch(handleError)
-  } 
+  }
 
   const getFriendRequests = () => {
     fetchFriendRequests()
-      .then((res) => setFriendRequests(res.data))
+      .then((res) => dispatch(setFriendRequests(res.data)))
       .catch(handleError)
   }
 
@@ -66,16 +72,11 @@ function HomePageComponent() {
     toggleModal(false)
   }
 
-  const isOnline = (userId: string) => {
-    onlineUserIds.find(
-      onlineUserId => onlineUserId.toString() === userId.toString()
-    )
-  }
-
   const handleAddFriend: SubmitHandler<AddFriendFormData> = async (data) => {
     try {
       toggleAddFriendLoading(true)
-      await sendFriendRequest(data)
+      const res = await sendFriendRequest(data)
+      handleSocketSendFriendRequest({ msgReceiverId: res.data.receiverId })
       alert('Add Friend successfully')
       toggleModal(false)
 
@@ -90,7 +91,8 @@ function HomePageComponent() {
   const handleAcceptFriendRequest = async (id: string, toggleLoading: Function) => {
     try {
       toggleLoading(true)
-      await acceptFriendRequest(id)
+      const res = await acceptFriendRequest(id)
+      handleSocketAcceptFriendRequest({ msgReceiverId: res.data.senderId })
       getFriends()
       getFriendRequests()
       alert('Accept Friend Request successfully')
@@ -147,7 +149,7 @@ function HomePageComponent() {
 
   const handleSendMessage = async () => {
     if (chatFriend && messageText) {
-      handleSocketSendMessage({ receiverId: chatFriend.id, messageText })
+      handleSocketSendMessage({ msgReceiverId: chatFriend.id, messageText })
       setMessageText('')
       const res = await fetchChatMessages({ friendUserId: chatFriend.id })
       setChatMessages(res.data)

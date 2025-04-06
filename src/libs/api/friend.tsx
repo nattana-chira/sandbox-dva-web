@@ -21,10 +21,10 @@ type FetchFriendRequestsResponse = {
 };
 
 type FriendRequestResponse = {
-  data: FriendRequest[]
+  data: FriendRequest
 };
 
-export async function sendFriendRequest({ email }: AddFriendParams) {
+export async function sendFriendRequest({ email }: AddFriendParams): Promise<FriendRequestResponse> {
   return await API.post('/api/friends/requests', { email })
 }
 
